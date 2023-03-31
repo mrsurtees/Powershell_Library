@@ -1,6 +1,5 @@
 ﻿<#
-.SYNOPSIS
-	Plays a parrot sound
+
 .DESCRIPTION
 	This PowerShell script plays a parrot sound.
 .EXAMPLE
