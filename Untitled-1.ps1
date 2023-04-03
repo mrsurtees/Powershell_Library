@@ -5,9 +5,6 @@ Get-ChildItem -Path "C:\Users\msurtees\Desktop\2022 Tableau\" -File | ForEach-Ob
 Copy-Item 'C:\Users\msurtees\Desktop\Copy PS! Files as text.ps1' '\\Mac\Home\Library\Application Support\DEVONthink 3\Inbox'
 $
  = @{
-    Name = Value
+    Name = Value                      
+    
 }
-
-
-
-gg
