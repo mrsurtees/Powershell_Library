@@ -15,6 +15,7 @@
 .NOTES
 	Author: Markus Fleschutz / License: CC0
 #>
+#kdjfaskfjaslkdfjsa;dlf
 
 #Requires -RunAsAdministrator
 
@@ -41,15 +42,15 @@ write-host -foregroundColor green -noNewline ''Done - press any key to continue.
 
 try {
 	if ($PathToExecutables -eq "" ) {
-		$PathToExecutables = read-host "Enter path to executables"
+		$PathToExecutables = Read-Host "Enter path to executables"
 	}
 
 	$PathToExecutables = Convert-Path -Path $PathToExecutables
 
 	$Apps = Get-ChildItem "$PathToExecutables\*.exe" -Name
 
-	if($Apps.count -eq 0){
-		write-warning "No executables found. No Firewall rules have been created."
+	if ($Apps.count -eq 0) {
+		Write-Warning "No executables found. No Firewall rules have been created."
 		Write-Host -NoNewhLine 'Press any key to continue...';
 		[void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 		exit 1
