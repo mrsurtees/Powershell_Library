@@ -1,20 +1,22 @@
 ﻿<#
 .SYNOPSIS
-	Reboots the local computer (needs admin rights)
+	Launches the Chrome browser
 .DESCRIPTION
-	This PowerShell script reboots the local computer (needs admin rights).
+	This PowerShell script launches the Google Chrome Web browser.
 .EXAMPLE
-	PS> ./reboot
+	PS> ./open-chrome
+.PARAMETER URL
+	Specifies an optional URL
 .LINK
 	https://github.com/fleschutz/PowerShell
 .NOTES
 	Author: Markus Fleschutz / License: CC0
 #>
 
-#Requires -RunAsAdministrator
+param([string]$URL = "http://www.fleschutz.de")
 
 try {
-	Restart-Computer
+	start-process chrome.exe "$URL"
 	exit 0 # success
 } catch {
 	"⚠️ Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"

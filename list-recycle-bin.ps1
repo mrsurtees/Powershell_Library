@@ -1,20 +1,18 @@
 ﻿<#
 .SYNOPSIS
-	Reboots the local computer (needs admin rights)
+	Lists the content of the recycle bin folder
 .DESCRIPTION
-	This PowerShell script reboots the local computer (needs admin rights).
+	This PowerShell script lists the content of the recycle bin folder.
 .EXAMPLE
-	PS> ./reboot
+	PS> ./list-recycle-bin
 .LINK
 	https://github.com/fleschutz/PowerShell
 .NOTES
 	Author: Markus Fleschutz / License: CC0
 #>
 
-#Requires -RunAsAdministrator
-
 try {
-	Restart-Computer
+	(New-Object -ComObject Shell.Application).NameSpace(0x0a).Items() | Select-Object Name,Size,Path
 	exit 0 # success
 } catch {
 	"⚠️ Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"

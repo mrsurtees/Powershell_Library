@@ -1,20 +1,19 @@
 ﻿<#
 .SYNOPSIS
-	Reboots the local computer (needs admin rights)
+	Lists the current working directory
 .DESCRIPTION
-	This PowerShell script reboots the local computer (needs admin rights).
+	This PowerShell script lists the current working directory (but not the content itself!)
 .EXAMPLE
-	PS> ./reboot
+	PS> ./list-workdir
 .LINK
 	https://github.com/fleschutz/PowerShell
 .NOTES
 	Author: Markus Fleschutz / License: CC0
 #>
 
-#Requires -RunAsAdministrator
-
 try {
-	Restart-Computer
+	$CWD = resolve-path "$PWD"
+	"📂$CWD"
 	exit 0 # success
 } catch {
 	"⚠️ Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"

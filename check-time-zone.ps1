@@ -1,20 +1,20 @@
 ﻿<#
 .SYNOPSIS
-	Reboots the local computer (needs admin rights)
+	Determines the time zone
 .DESCRIPTION
-	This PowerShell script reboots the local computer (needs admin rights).
+	This PowerShell script determines and returns the current time zone.
 .EXAMPLE
-	PS> ./reboot
+	PS> ./check-time-zone
 .LINK
 	https://github.com/fleschutz/PowerShell
 .NOTES
 	Author: Markus Fleschutz / License: CC0
 #>
 
-#Requires -RunAsAdministrator
-
 try {
-	Restart-Computer
+	$TimeZone = (Get-Timezone)
+
+	& "$PSScriptRoot/give-reply.ps1" "It's $($TimeZone.DisplayName)"
 	exit 0 # success
 } catch {
 	"⚠️ Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"

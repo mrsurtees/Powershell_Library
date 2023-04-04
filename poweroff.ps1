@@ -1,20 +1,20 @@
 ﻿<#
 .SYNOPSIS
-	Reboots the local computer (needs admin rights)
+	Halts the local computer (needs admin rights)
 .DESCRIPTION
-	This PowerShell script reboots the local computer (needs admin rights).
+	This script halts the local computer. It needs admin rights.
 .EXAMPLE
-	PS> ./reboot
+	PS> ./poweroff
+.NOTES
+	Author: Markus Fleschutz · License: CC0
 .LINK
 	https://github.com/fleschutz/PowerShell
-.NOTES
-	Author: Markus Fleschutz / License: CC0
 #>
 
 #Requires -RunAsAdministrator
 
 try {
-	Restart-Computer
+	Stop-Computer
 	exit 0 # success
 } catch {
 	"⚠️ Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"

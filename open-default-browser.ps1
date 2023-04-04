@@ -1,20 +1,22 @@
 ﻿<#
 .SYNOPSIS
-	Reboots the local computer (needs admin rights)
+	Opens the default browser
 .DESCRIPTION
-	This PowerShell script reboots the local computer (needs admin rights).
+	This PowerShell script launches the default Web browser, optional with a given URL.
+.PARAMETER URL
+	Specifies the URL
 .EXAMPLE
-	PS> ./reboot
+	PS> ./open-default-browser
 .LINK
 	https://github.com/fleschutz/PowerShell
 .NOTES
 	Author: Markus Fleschutz / License: CC0
 #>
 
-#Requires -RunAsAdministrator
+param([string]$URL = "http://www.fleschutz.de")
 
 try {
-	Restart-Computer
+	Start-Process $URL
 	exit 0 # success
 } catch {
 	"⚠️ Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"

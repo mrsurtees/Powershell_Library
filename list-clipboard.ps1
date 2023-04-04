@@ -1,20 +1,18 @@
 ﻿<#
 .SYNOPSIS
-	Reboots the local computer (needs admin rights)
+	Lists the contents of the clipboard
 .DESCRIPTION
-	This PowerShell script reboots the local computer (needs admin rights).
+	This PowerShell script lists the contents of the clipboard.
 .EXAMPLE
-	PS> ./reboot
+	PS> ./list-clipboard
 .LINK
 	https://github.com/fleschutz/PowerShell
 .NOTES
 	Author: Markus Fleschutz / License: CC0
 #>
 
-#Requires -RunAsAdministrator
-
 try {
-	Restart-Computer
+	"📋 $(get-clipboard)"
 	exit 0 # success
 } catch {
 	"⚠️ Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"

@@ -1,20 +1,18 @@
 ﻿<#
 .SYNOPSIS
-	Reboots the local computer (needs admin rights)
+	Prints the current moon phase
 .DESCRIPTION
-	This PowerShell script reboots the local computer (needs admin rights).
+	This PowerShell script prints the current moon phase.
 .EXAMPLE
-	PS> ./reboot
+	PS> ./moon
 .LINK
 	https://github.com/fleschutz/PowerShell
 .NOTES
 	Author: Markus Fleschutz / License: CC0
 #>
 
-#Requires -RunAsAdministrator
-
 try {
-	Restart-Computer
+	(Invoke-WebRequest http://wttr.in/Moon -userAgent "curl" -useBasicParsing).Content
 	exit 0 # success
 } catch {
 	"⚠️ Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"
