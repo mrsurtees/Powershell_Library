@@ -1,4 +1,6 @@
+##This line added as recommended by Datto for proper download speeds
 $ProgressPreference = "SilentlyContinue"
+
 
 Clear-Host
 Copy-Item "./*.csv" "c:\temp\installersArray.csv"
