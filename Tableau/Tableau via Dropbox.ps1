@@ -150,7 +150,7 @@ try {
     Write-Error -Message "Invoke-WebRequest Failed. Installation Archive not downloaded." -Category OpenError -ErrorAction Stop
     $UdfContent += "_IVWR:Invoke ERROR|"
 }
-   
+
 $Hashesverify = Get-FileHash $installersArray[0]
 #write-hosts for testing
 Write-Verbose "GETTING HASH"
@@ -200,10 +200,10 @@ if ($fileExists) {
     Write-Verbose "Current Desktop NOT Installed....installing" 
     $UdfContent += "_Destop:Installed|"
 
-   
+
     $p = Start-Process "c:\temp\TableauDesktop-64bit-2022-4-1.exe" -ArgumentList "ACCEPTEULA=1 DESKTOPSHORTCUT=1 REMOVEINSTALLEDAPP=1 /quiet" -PassThru
     $p.WaitForExit()
- 
+
     $UdfContent += "_Destop:Installed "
     $fileExists = Test-Path $ExePath
     if ($fileExists) {
