@@ -15,7 +15,7 @@
 
 param([string]$text = "")
 
-if ($text -eq "" ) { $text = read-host "Enter the text to write" }
+if ($text -eq "" ) { $text = Read-Host "Enter the text to write" }
 
-write-output $text.ToLower()
-exit 0 # success
+Write-Output $text.ToLower()
+#exit 0 # success
