@@ -20,11 +20,11 @@ function WriteTo-UDF {
         [Parameter(Mandatory = $true)]  [int]$UdfNumber,
         [Parameter(Mandatory = $true)]  [string]$UdfMessage
     )
- 
+
     if ($udfNumber -lt 1 -or $UdfNumber -gt 30) {
         $msg = 'Fatal Error in Script Execution\Invalid UDF Number in WriteTo-UDF function call: $($UdfNumber.ToString())'
         Write-Error -Message $msg -Category InvalidArgument -ErrorAction Stop
- 
+
     }
 
     $udfName = 'Custom' + $UdfNumber.ToString()
