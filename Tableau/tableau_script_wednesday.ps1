@@ -1,10 +1,10 @@
 ﻿Clear-Host
 #%%%%%%%%%%%%%%%%%%
 #      Start       #
-#      PURPOSE:  reads in a csv with headings of "path, hash, name, url".  With these 
+#      PURPOSE:  reads in a csv with headings of "path, hash, name, url".  With these
 #      populated the script will install the requested software...in this case it's
 #      for Chartis Tableau
-# 
+#
 #      Checks if latest Tableau versions are installed and, if not, installs.  Old versions removed.
 #%%%%%%%%%%%%%%%%%%
 
@@ -21,15 +21,15 @@ if (Test-Path "C:\temp\foundShortcuts.csv") {
     New-Item -Path "C:\temp\foundShortcuts.csv"
 }
 
-
+#write-host $userSID
 
 ###Get username #####
 $liu = (Get-CimInstance -ClassName Win32_ComputerSystem).UserName
 ###$userID needs to be error checked since issues are possible
 $userID = $liu.split("\")[1]
-$user = New-Object System.Security.Principal.NTAccount($liu) 
-$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier]) 
-<#  FV - COMMENT 
+$user = New-Object System.Security.Principal.NTAccount($liu)
+$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier])
+<#  FV - COMMENT
     Now the Error check for username is here
 #Ensure there is a user logged in; abort execution if not #>
 if ($userid -like "") {
@@ -48,14 +48,14 @@ function UDF {
     Param
     (
         [Parameter(Mandatory = $false)]  [string]$var1,
-        [Parameter(Mandatory = $false)]  [string]$errorMessage, 
+        [Parameter(Mandatory = $false)]  [string]$errorMessage,
         [Parameter(Mandatory = $false)]  [string]$goodResult
     )
     <#  FV - COMMENT
             UDF Function now used throughout the script
             Still not portable enough
            #>
-        
+
     if ($var1 -like "") {
         $verified = "Custom15"
         New-ItemProperty -Path "HKLM:\SOFTWARE\CentraStage" -Name $verified -PropertyType String -Value $errorMessage
@@ -70,7 +70,7 @@ function UDF {
     }
 }
 
-#%%%%%%%%%%%%%%%%%% FUNCTION DOWNLOAD Tableau INSTALLERS PREP AND DESKTOP %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% FUNCTION DOWNLOAD Tableau INSTALLERS PREP AND DESKTOP %%%%%%%%%%%%%%%%%%
 function downloadFilesHashes {
     <#  FV - COMMENT
         Added more comments for the steps
@@ -91,11 +91,11 @@ function downloadFilesHashes {
      $($_.url)"
 
         Invoke-WebRequest -Uri $($_.url) -OutFile $($_.path)
-        
-        
-        #$testing = Test-Path "$($_.path)" 
+
+
+        #$testing = Test-Path "$($_.path)"
         #if ($testing = $false) {Invoke-WebRequest -Uri $($_.url) -OutFile $($_.path)}
-        #else 
+        #else
         #{
         #write-host "We have an issue...stop"
         #UDF $var1 $errorMessage $goodResult
@@ -112,16 +112,16 @@ function downloadFilesHashes {
 
         } else {
             $errorMessage = "Hash checking failed" | Out-File "c:\temp\errorlog.txt" -Append
-            UDF $var1 $errorMessage 
+            UDF $var1 $errorMessage
             exit
         }
-    
-    } 
+
+    }
 }
 
-#%%%%%%%%%%%%%%%%%% CHECK IF LATEST DESKTOP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% CHECK IF LATEST DESKTOP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%%
 FUNCTION DesktopInstall {
-    #populate messages for UDF 
+    #populate messages for UDF
     $errorMessage = "N"
     $goodResult = "Already installed"
     $goodResult | Out-File "c:\temp\errorlog.txt" -Append
@@ -133,17 +133,17 @@ FUNCTION DesktopInstall {
   } else {
        #Install Current Version
         Write-Host "NOT Installed....installing" -ForegroundColor red
-        UDF $var1 $errorMessage 
+        UDF $var1 $errorMessage
         Start-Process "c:\temp\TableauDesktop-64bit-2022-4-1.exe" -ArgumentList "ACCEPTEULA=1 DESKTOPSHORTCUT=1 REMOVEINSTALLEDAPP=1 /quiet"
-   
+
     }
-} 
+}
 
 
 #%%%%%%%%%%%%%%%%%% CHECK IF LATEST PREP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%%
 FUNCTION PrepInstall {
     #check for existence...not there we install
-    #populate messages for UDF 
+    #populate messages for UDF
     $errorMessage = "Prep Not installed...installing"
     $goodResult = "Prep Already installed"
     $goodResult | Out-File "c:\temp\errorlog.txt" -Append
@@ -155,12 +155,12 @@ FUNCTION PrepInstall {
         UDF $var1 $errorMessage $goodResult
         Start-Process "c:\temp\TableauPrep-2022-4-2.exe" -ArgumentList "ACCEPTEULA=1 DESKTOPSHORTCUT=1 /quiet"
     } else {
-        UDF $var1 $errorMessage 
+        UDF $var1 $errorMessage
         Write-Host "Current Prep version already installed" -ForegroundColor Cyan
     }
-} 
+}
 
-#%%%%%%%%%%%%%%%%%% LOG AND DELETE OLD Tableau SHORTCUTS %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% LOG AND DELETE OLD Tableau SHORTCUTS %%%%%%%%%%%%%%%%%%
 function findShortcuts {
     Remove-Item -Path "c:\temp\foundShortcuts.csv"
     New-Item -Path "c:\temp\foundShortcuts.csv"
@@ -187,7 +187,7 @@ if ($oldPrepRemovals -eq "") {
     Write-Host "No old 2021s so Move on..."
 } else {
 
-    $oldPrepRemovals.FullName 
+    $oldPrepRemovals.FullName
     $oldPrepRemovals.FullName | Out-File "C:\temp\errorlog.txt" -Append
     try {
         Start-Process $oldPrepRemovals.FullName -ArgumentList "/uninstall /quiet"
@@ -199,7 +199,7 @@ if ($oldPrepRemovals -eq "") {
 #Uninstall Old 2020 Preps
 $oldPrepRemovals = Get-ChildItem -Recurse -Path "C:\programdata\Package Cache" -Include "Tableau-setup-p*2020*.exe"
 if ($oldPrepRemovals -eq "") {
-    $oldPrepRemovals.FullName 
+    $oldPrepRemovals.FullName
     $oldPrepRemovals.FullName | Out-File "c:\temp\foundOldPreps.csv" -Append
     try {
         Start-Process $oldPrepRemovals.FullName -ArgumentList "/uninstall /quiet"
@@ -214,7 +214,7 @@ if ($oldPrepRemovals -eq "") {
 #Uninstall Old 2019 Preps
 $oldPrepRemovals = Get-ChildItem -Recurse -Path "C:\programdata\Package Cache" -Include "Tableau-setup-p*2019*.exe"
 if ($oldPrepRemovals -eq "") {
-    $oldPrepRemovals.FullName 
+    $oldPrepRemovals.FullName
     $oldPrepRemovals.FullName | Out-File "c:\temp\foundOldPreps.csv" -Append
     try {
         Start-Process $oldPrepRemovals.FullName -ArgumentList "/uninstall /quiet"
@@ -225,7 +225,7 @@ if ($oldPrepRemovals -eq "") {
     Write-Host "No old 2019s so Move on..."
 }
 
-#%%%%%%%%%%%%%%%%%% Create New Tableau Shortcuts %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% Create New Tableau Shortcuts %%%%%%%%%%%%%%%%%%
 #Create out shortcuts for the new apps
 #Prep
 $WshShell = New-Object -comObject WScript.Shell
