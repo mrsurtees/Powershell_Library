@@ -1,13 +1,13 @@
 ﻿#%%%%%%%%%%%%%%%%%%
 #      Start       #
        Clear-Host
-
+#
 
 ###Get username #####
 $liu = (Get-CimInstance -ClassName Win32_ComputerSystem).UserName
 $userID = $liu.split("\")[1]
-$user = New-Object System.Security.Principal.NTAccount($liu) 
-$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier]) 
+$user = New-Object System.Security.Principal.NTAccount($liu)
+$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier])
 
 #Poplate for UDF Function
 $var1 = $userID
@@ -16,14 +16,14 @@ $errorMessage = "Tableau: No user logged in"
 $goodResult = "Running for user: $var1"
 
 
- 
+
 #Ensure there is a user logged in; abort execution if not
 #Used a multitude of times...just needs passing of the necessary parameters
 function UDF{
     Param
     (
          [Parameter(Mandatory = $false)]  [string]$var1,
-         [Parameter(Mandatory = $false)]  [string]$errorMessage, 
+         [Parameter(Mandatory = $false)]  [string]$errorMessage,
          [Parameter(Mandatory = $false)]  [string]$goodResult
     )
         if ($var1 -like ".") {
@@ -33,7 +33,7 @@ function UDF{
         $errorlog = $errorMessage
         $errorLog | Out-File "c:\temp\errorlog.txt" -Append
        #exit
-} 
+}
     else {
       $verified = "Custom15"
         New-ItemProperty -Path "HKLM:\SOFTWARE\CentraStage" -Name $verified -PropertyType String -Value $goodResult
@@ -48,7 +48,7 @@ $goodResult  | out-file "c:\temp\errorlog.txt" -Append
 $var1 = "Checking hash"
 
 
-#%%%%%%%%%%%%%%%%%% FUNCTION DOWNLOAD Tableau INSTALLERS PREP AND DESKTOP %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% FUNCTION DOWNLOAD Tableau INSTALLERS PREP AND DESKTOP %%%%%%%%%%%%%%%%%%
 function downloadFilesHashes {
 
     Import-Csv C:\temp\installersArray.csv | ForEach-Object {
@@ -64,19 +64,19 @@ function downloadFilesHashes {
         if ($Hashesverify.hash -eq $($_.hash))
             {Write-Host "EQUAL" -ForegroundColor Cyan
             $errorMessage = "Hashes equal..continuing"| out-file "c:\temp\errorlog.txt" -Append
-            
+
             }
         else{
             $goodResult = "Hash checking failed"| out-file "c:\temp\errorlog.txt" -Append
             #exit
             }
-    
-    } 
+
+    }
 }
 downloadFilesHashes
 udf $var1 $errorMessage $goodResult
 
-#%%%%%%%%%%%%%%%%%% CHECK IF LATEST DESKTOP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% CHECK IF LATEST DESKTOP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%%
 FUNCTION DesktopInstall{
 $currentDesktopInstalled =  Test-Path 'C:\Program Files\Tableau\Tableau 2022.4\bin\tableau.exe'
 if ($currentDesktopInstalled -eq $false) {
@@ -88,7 +88,7 @@ if ($currentDesktopInstalled -eq $false) {
     else
     {#STOP HERE  UDF UPDATE GOES HERE
      write-host "Current Desktop version already installed" -ForegroundColor Cyan}
-} 
+}
 
 #%%%%%%%%%%%%%%%%%% CHECK IF LATEST PREP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%%
 FUNCTION PrepInstall{
@@ -104,9 +104,9 @@ if ($currentPrepInstalled -eq $false) {
     {
      write-host "Current Prep version already installed" -ForegroundColor Cyan
      }
-} 
+}
 
-#%%%%%%%%%%%%%%%%%% LOG AND DELETE OLD Tableau SHORTCUTS %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% LOG AND DELETE OLD Tableau SHORTCUTS %%%%%%%%%%%%%%%%%%
 function findShortcuts{
     #$oldPreps = (Get-ChildItem "C:\users\$userID\appdata\" -Include "tableau*.lnk" -Recurse)
     remove-item -path "c:\temp\foundShortcuts.csv"
@@ -138,7 +138,7 @@ function uninstallOldPreps{
 
 }
 
-#Download files and verify them. 
+#Download files and verify them.
 #If not installed, start the install.
     DesktopInstall
 #If not installed, start the install.
