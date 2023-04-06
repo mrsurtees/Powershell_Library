@@ -3,10 +3,10 @@ Clear-Host
 $VerbosePreference = "Continue"
 #%%%%%%%%%%%%%%%%%%
 #      Start       #
-#      PURPOSE:  reads in a csv with headings of "path, hash, name, url".  With these 
+# PURPOSE: reads in a csv with headings of "path, hash, name, url".  With these
 #      populated the script will install the requested software...in this case it's
 #      for Chartis Tableau
-# 
+#
 #      Checks if latest Tableau versions are installed and, if not, installs.  Old versions removed.
 #%%%%%%%%%%%%%%%%%%
 #all working....get error checking in place
@@ -16,11 +16,11 @@ function WriteTo-UDF {
         [Parameter(Mandatory = $true)]  [int]$UdfNumber,
         [Parameter(Mandatory = $true)]  [string]$UdfMessage
     )
- 
+
     if ($udfNumber -lt 1 -or $UdfNumber -gt 30) {
         $msg = 'Fatal Error in Script Execution\Invalid UDF Number in WriteTo-UDF function call: $($UdfNumber.ToString())'
         Write-Error -Message $msg -Category InvalidArgument -ErrorAction Stop
- 
+
     }
 
     $udfName = 'Custom' + $UdfNumber.ToString()
@@ -77,16 +77,15 @@ function Get-LoggedInUser {
 
     $LogonSessions = @(Get-CimInstance -Class Win32_LogonSession)
     $LogonUsers = @(Get-CimInstance -Class Win32_LoggedOnUser)
-
     foreach ($User in $LogonUsers) {
         $User.antecedent -match $AntecedentRegex > $nul
         $UserName = $matches[2] + "\" + $matches[1]
         $User.dependent -match $DependentRegex > $nul
         $session = $matches[1]
-        $sessionUser[$session] += $UserName 
+        $sessionUser[$session] += $UserName
     }
 
-        
+
     foreach ($Session in $LogonSessions) {
         if (($Session.logontype -eq 2) -and ($session.authenticationpackage -ne 'Negotiate')) {
             $lgu = [PsCustomObject] @{
@@ -110,8 +109,8 @@ $liu = Get-LoggedInUser
 
 ###$userID needs to be error checked since issues are possible
 $userID = $liu.split("\")[1]
-$user = New-Object System.Security.Principal.NTAccount($liu) 
-$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier]) 
+$user = New-Object System.Security.Principal.NTAccount($liu)
+$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier])
 $UdfContent = ""
 
 #Ensure there is a user logged in; abort execution if not
@@ -146,7 +145,7 @@ try {
     Write-Error -Message "Invoke-WebRequest Failed. Installation Archive not downloaded." -Category OpenError -ErrorAction Stop
     $UdfContent += "_IVWR:Invoke ERROR|"
 }
-   
+
 $Hashesverify = Get-FileHash $installersArray[0]
 #write-hosts for testing
 Write-Verbose "GETTING HASH"
@@ -156,7 +155,7 @@ if ($Hashesverify.hash -eq $installersArray[2]) {
     Write-Verbose "Hashes match - proceeding"
 } else {
     WriteTo-UDF -udfNumber 15 -UdfMessage "Archive Hash Mismatch"
-    Write-Error -Message "Hashes do not match - corrupt Installers Archive detected." -Category InvalidData -ErrorAction Stop 
+    Write-Error -Message "Hashes do not match - corrupt Installers Archive detected." -Category InvalidData -ErrorAction Stop
     $UdfContent += "_InstallerHash:hash Mismatch"
 }
 
@@ -169,7 +168,7 @@ if ($Hashesverify.hash -eq $installersArray[3]) {
     Write-Verbose "Hashes match - proceeding"
 } else {
     WriteTo-UDF -udfNumber 15 -UdfMessage "Archive Hash Mismatch"
-    Write-Error -Message "Hashes do not match - corrupt Installers Archive detected." -Category InvalidData -ErrorAction Stop 
+    Write-Error -Message "Hashes do not match - corrupt Installers Archive detected." -Category InvalidData -ErrorAction Stop
     $UdfContent += "_InstallerHash:hash Mismatch"
 }
 ########################### ABOVE ADDED 3/28 - MANUAL ARRAY ###########################
@@ -193,13 +192,13 @@ if ($fileExists) {
     }
 
     #Install Current Version
-    Write-Verbose "Current Desktop NOT Installed....installing" 
+    Write-Verbose "Current Desktop NOT Installed....installing"
     $UdfContent += "_Destop:Installed|"
 
-   
+
     $p = Start-Process "c:\temp\TableauDesktop-64bit-2022-4-1.exe" -ArgumentList "ACCEPTEULA=1 DESKTOPSHORTCUT=1 REMOVEINSTALLEDAPP=1 /quiet" -PassThru
     $p.WaitForExit()
- 
+
     $UdfContent += "_Destop:Installed "
     $fileExists = Test-Path $ExePath
     if ($fileExists) {
@@ -232,7 +231,7 @@ if ($fileExists) {
 # loop through the array
 # foreach: compare $installed.installedhash with get-filehash $installed.installedpath
 # if $installed.installedhash -eq $get-filehash $installed.installedpath
-# EQUAL:  we know exe is good.  Move one
+# EQUAL: we know exe is good.  Move one
 # NOT-EQUAL  STOP.  Hashes don't match
 $installed = Import-Csv -Path "C:\temp\installersArray.csv"
 
@@ -240,8 +239,8 @@ $installed = Import-Csv -Path "C:\temp\installersArray.csv"
 
 foreach ($i in $installed) {
     if ($i.installedhash -eq $(Get-FileHash $i.installedpath).hash) {
-        Write-Verbose "$($i.installedname) is OK:  hashes match" 
-        $UdfContent += "_InstallerHash:YES $($i.installedName)|" 
+        Write-Verbose "$($i.installedname) is OK:  hashes match"
+        $UdfContent += "_InstallerHash:YES $($i.installedName)|"
     } else {
         Write-Verbose "$($i.installedname) has an incorrect hash so we must stop."
         writeto-udf -udfNumber 15 "$($i.installedName) hash is incorrect so we must stop"
@@ -262,7 +261,7 @@ Delete-OldTableauPrep -Year 2019
 
 
 <#
-if (Test-Path "C:\temp\TableauPrep-2022-4-2.exe") 
+if (Test-Path "C:\temp\TableauPrep-2022-4-2.exe")
     {Remove-Item "C:\temp\TableauPrep-2022-4-2.exe"
     }
 if (Test-Path -path "C:\temp\TableauDesktop-64bit-2022-4-1.exe")
@@ -272,6 +271,6 @@ $UdfContent += "_SCRIPT:DONE"
 
 
 
-#Write the final UdfContent to UDF 15 
+#Write the final UdfContent to UDF 15
 WriteTo-UDF -UdfNumber 15 -UdfMessage $UdfContent
-        
+#!#!#!#!#!
