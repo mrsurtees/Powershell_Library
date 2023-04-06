@@ -1,16 +1,14 @@
-##This line added as recommended by Datto for proper download speeds
 $ProgressPreference = "SilentlyContinue"
 
-
 Clear-Host
-Copy-Item "./*.csv" "c:\temp\installersArray.csv"
+copy-item "./*.csv" "c:\temp\installersArray.csv"
 $VerbosePreference = "Continue"
 #%%%%%%%%%%%%%%%%%%
 #      Start       #
-#      PURPOSE:  reads in a csv with headings of "path, hash, name, url".  With these 
+#      PURPOSE:  reads in a csv with headings of "path, hash, name, url".  With these
 #      populated the script will install the requested software...in this case it's
 #      for Chartis Tableau
-# 
+#
 #      Checks if latest Tableau versions are installed and, if not, installs.  Old versions removed.
 #%%%%%%%%%%%%%%%%%%
 #all working....get error checking in place
@@ -58,7 +56,7 @@ function Delete-OldTableauPrep {
 if (-not (Test-Path "c:\temp")) {
     New-Item -Path "C:\Temp" -ItemType Directory -Force
 }
-Copy-Item "./*.*" "c:\temp"
+copy-item "./*.*" "c:\temp"
 function Get-LoggedInUser {
     $AntecedentRegex = '.+Name = "(.+)".+Domain = "(.+)"'
     $DependentRegex = '.+LogonId = "(\d+)"'
@@ -67,16 +65,16 @@ function Get-LoggedInUser {
     $SessionUser = @{}
 
     $LogonType = @{
-        "0"  = "Local System"
-        "2"  = "Interactive (Local logon)"
-        "3"  = "Network (Remote logon)"
-        "4"  = "Batch (Scheduled task)"
-        "5"  = "Service (Service account logon)"
-        "7"  = "Unlock (Screen saver)"
-        "8"  = "NetworkCleartext (Cleartext network logon)"
-        "9"  = "NewCredentials (RunAs using alternate credentials)"
-        "10" = "RemoteInteractive (RDP\TS\RemoteAssistance)"
-        "11" = "CachedInteractive (Local w\cached credentials)"
+        "0"="Local System"
+        "2"="Interactive (Local logon)"
+        "3"="Network (Remote logon)"
+        "4"="Batch (Scheduled task)"
+        "5"="Service (Service account logon)"
+        "7"="Unlock (Screen saver)"
+        "8"="NetworkCleartext (Cleartext network logon)"
+        "9"="NewCredentials (RunAs using alternate credentials)"
+        "10"="RemoteInteractive (RDP\TS\RemoteAssistance)"
+        "11"="CachedInteractive (Local w\cached credentials)"
     }
 
     $LogonSessions = @(Get-CimInstance -Class Win32_LogonSession)
@@ -87,18 +85,18 @@ function Get-LoggedInUser {
         $UserName = $matches[2] + "\" + $matches[1]
         $User.dependent -match $DependentRegex > $nul
         $session = $matches[1]
-        $sessionUser[$session] += $UserName 
+        $sessionUser[$session] += $UserName
     }
 
-        
+
     foreach ($Session in $LogonSessions) {
         if (($Session.logontype -eq 2) -and ($session.authenticationpackage -ne 'Negotiate')) {
             $lgu = [PsCustomObject] @{
-                Session   = $Session.logonid
-                User      = $SessionUser[$Session.logonid]
-                Type      = $Session.logontype
+                Session = $Session.logonid
+                User = $SessionUser[$Session.logonid]
+                Type = $Session.logontype
                 LogonType = $LogonType[$Session.logontype.ToString()]
-                Auth      = $Session.authenticationpackage
+                Auth = $Session.authenticationpackage
                 StartTime = $Session.starttime
             }
             $LoggedOnUsers.Add($lgu)
@@ -114,8 +112,8 @@ $liu = Get-LoggedInUser
 
 ###$userID needs to be error checked since issues are possible
 $userID = $liu.split("\")[1]
-$user = New-Object System.Security.Principal.NTAccount($liu) 
-$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier]) 
+$user = New-Object System.Security.Principal.NTAccount($liu)
+$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier])
 $UdfContent = ""
 
 #Ensure there is a user logged in; abort execution if not
@@ -128,28 +126,28 @@ if ($userID -like "") {
 }
 
 ########################### BELOW ADDED 3/28 - MANUAL ARRAY ###########################
-$installersArray = @('c:\temp\TableauPrep-2022-4-2.exe', 'c:\temp\TableauDesktop-64bit-2022-4-1.exe', 'D200F6260D6360D54A71F4EE386A56FF6585DABBFD814474B340DF0F23479B7E', 'C63EC3AB246FDC19D89067C62F4F0078BBB0E3B7DE939A882D2901E7E9554E93', 'https://www.dropbox.com/s/exfw81rfls36fx0/TableauPrep-2022-4-2.exe?dl=1', 'https://www.dropbox.com/s/8zudwecv3jhd8wb/TableauDesktop-64bit-2022-4-1.exe?dl=1')
+$installersArray =@('c:\temp\TableauPrep-2022-4-2.exe','c:\temp\TableauDesktop-64bit-2022-4-1.exe','D200F6260D6360D54A71F4EE386A56FF6585DABBFD814474B340DF0F23479B7E','C63EC3AB246FDC19D89067C62F4F0078BBB0E3B7DE939A882D2901E7E9554E93','https://www.dropbox.com/s/exfw81rfls36fx0/TableauPrep-2022-4-2.exe?dl=1','https://www.dropbox.com/s/8zudwecv3jhd8wb/TableauDesktop-64bit-2022-4-1.exe?dl=1')
 
 # For the necessary parameters received from other functions
 # downloadFilesHashes
 
 try {
-    Invoke-WebRequest $installersArray[4] -OutFile $installersArray[0]
-    $UdfContent += "_IVWR:Invoke OK|"
-} catch {
-    WriteTo-UDF -UdfNumber 15 -UdfMessage "Invoke-WebRequest Failed. We stop."
-    Write-Error -Message "Invoke-WebRequest Failed. Installation Archive not downloaded." -Category OpenError -ErrorAction Stop
-    $UdfContent += "_IVWR:Invoke ERROR|"
-}
+        Invoke-WebRequest $installersArray[4] -OutFile $installersArray[0]
+        $UdfContent += "_IVWR:Invoke OK|"
+    } catch {
+        WriteTo-UDF -UdfNumber 15 -UdfMessage "Invoke-WebRequest Failed. We stop."
+        Write-Error -Message "Invoke-WebRequest Failed. Installation Archive not downloaded." -Category OpenError -ErrorAction Stop
+        $UdfContent += "_IVWR:Invoke ERROR|"
+        }
 
 try {
-    Invoke-WebRequest $installersArray[5] -OutFile $installersArray[1]
-    $UdfContent += "_IVWR:Invoke OK| "
-} catch {
-    WriteTo-UDF -UdfNumber 15 -UdfMessage "Invoke-WebRequest Failed. We stop."
-    Write-Error -Message "Invoke-WebRequest Failed. Installation Archive not downloaded." -Category OpenError -ErrorAction Stop
-    $UdfContent += "_IVWR:Invoke ERROR|"
-}
+        Invoke-WebRequest $installersArray[5] -OutFile $installersArray[1]
+        $UdfContent += "_IVWR:Invoke OK| "
+    } catch {
+        WriteTo-UDF -UdfNumber 15 -UdfMessage "Invoke-WebRequest Failed. We stop."
+        Write-Error -Message "Invoke-WebRequest Failed. Installation Archive not downloaded." -Category OpenError -ErrorAction Stop
+        $UdfContent += "_IVWR:Invoke ERROR|"
+    }
 
 $Hashesverify = Get-FileHash $installersArray[0]
 #write-hosts for testing
@@ -160,7 +158,7 @@ if ($Hashesverify.hash -eq $installersArray[2]) {
     Write-Verbose "Hashes match - proceeding"
 } else {
     WriteTo-UDF -udfNumber 15 -UdfMessage "Archive Hash Mismatch"
-    Write-Error -Message "Hashes do not match - corrupt Installers Archive detected." -Category InvalidData -ErrorAction Stop 
+    Write-Error -Message "Hashes do not match - corrupt Installers Archive detected." -Category InvalidData -ErrorAction Stop
     $UdfContent += "_InstallerHash:hash Mismatch"
 }
 
@@ -173,7 +171,7 @@ if ($Hashesverify.hash -eq $installersArray[3]) {
     Write-Verbose "Hashes match - proceeding"
 } else {
     WriteTo-UDF -udfNumber 15 -UdfMessage "Archive Hash Mismatch"
-    Write-Error -Message "Hashes do not match - corrupt Installers Archive detected." -Category InvalidData -ErrorAction Stop 
+    Write-Error -Message "Hashes do not match - corrupt Installers Archive detected." -Category InvalidData -ErrorAction Stop
     $UdfContent += "_InstallerHash:hash Mismatch"
 }
 ########################### ABOVE ADDED 3/28 - MANUAL ARRAY ###########################
@@ -197,7 +195,7 @@ if ($fileExists) {
     }
 
     #Install Current Version
-    Write-Verbose "Current Desktop NOT Installed....installing" 
+    Write-Verbose "Current Desktop NOT Installed....installing"
     $UdfContent += "_Destop:Installed|"
 
 
@@ -244,8 +242,8 @@ $installed = Import-Csv -Path "C:\temp\installersArray.csv"
 
 foreach ($i in $installed) {
     if ($i.installedhash -eq $(Get-FileHash $i.installedpath).hash) {
-        Write-Verbose "$($i.installedname) is OK:  hashes match" 
-        $UdfContent += "_InstallerHash:YES $($i.installedName)|" 
+        Write-Verbose "$($i.installedname) is OK:  hashes match"
+        $UdfContent += "_InstallerHash:YES $($i.installedName)|"
     } else {
         Write-Verbose "$($i.installedname) has an incorrect hash so we must stop."
         writeto-udf -udfNumber 15 "$($i.installedName) hash is incorrect so we must stop"
@@ -266,16 +264,15 @@ Delete-OldTableauPrep -Year 2019
 
 
 
-if (Test-Path "C:\temp\TableauPrep-2022-4-2.exe") {
-    Remove-Item "C:\temp\TableauPrep-2022-4-2.exe"
-}
-if (Test-Path -Path "C:\temp\TableauDesktop-64bit-2022-4-1.exe")
-{ Remove-Item "C:\temp\TableauDesktop-64bit-2022-4-1.exe" }
+if (Test-Path "C:\temp\TableauPrep-2022-4-2.exe")
+    {Remove-Item "C:\temp\TableauPrep-2022-4-2.exe"
+    }
+if (Test-Path -path "C:\temp\TableauDesktop-64bit-2022-4-1.exe")
+    {Remove-Item "C:\temp\TableauDesktop-64bit-2022-4-1.exe"}
 
 $UdfContent += "_SCRIPT:DONE"
 
 
 
-#Write the final UdfContent to UDF 15 
+#Write the final UdfContent to UDF 15
 WriteTo-UDF -UdfNumber 15 -UdfMessage $UdfContent
-        
