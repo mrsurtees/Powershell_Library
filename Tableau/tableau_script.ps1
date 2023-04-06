@@ -6,8 +6,8 @@ Clear-Host
 ###Get username #####
 $liu = (Get-CimInstance -ClassName Win32_ComputerSystem).UserName
 $userID = $liu.split("\")[1]
-$user = New-Object System.Security.Principal.NTAccount($liu) 
-$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier]) 
+$user = New-Object System.Security.Principal.NTAccount($liu)
+$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier])
 
 #Ensure there is a user logged in; abort execution if not
 $errorLog | out-file "c:\temp\errorlog.txt"
@@ -17,7 +17,7 @@ $errorLog | out-file "c:\temp\errorlog.txt"
         $errorlog = "STOP - Tableau: No user logged in"
         $errorLog | Out-File "c:\temp\errorlog.txt" -Append
         #exit
-} 
+}
     else {
       $verified = "Custom15"
         New-ItemProperty -Path "HKLM:\SOFTWARE\CentraStage" -Name $verified -PropertyType String -Value "Running for user: $userID"
@@ -25,12 +25,13 @@ $errorLog | out-file "c:\temp\errorlog.txt"
         "Detected logged-in user: $userID" | Out-File "c:\temp\errorlog.txt" -Append
 }
 
+dddddd
 
 
 #new-item -Path "c:\temp\foundShortcuts.csv" -ErrorAction Ignore
 #new-item -path "c:\temp\installersarray.csv" -ErrorAction ignore
 
-#%%%%%%%%%%%%%%%%%% FUNCTION DOWNLOAD Tableau INSTALLERS PREP AND DESKTOP %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% FUNCTION DOWNLOAD Tableau INSTALLERS PREP AND DESKTOP %%%%%%%%%%%%%%%%%%
 function downloadFilesHashes {
     Import-Csv C:\temp\installersArray.csv | ForEach-Object {
     "$($_.path)
@@ -50,10 +51,10 @@ function downloadFilesHashes {
             {Write-error "The HASHES don't Match."  -ForegroundColor red
              #udf
             }
-    } 
+    }
 }
 
-#%%%%%%%%%%%%%%%%%% CHECK IF LATEST DESKTOP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% CHECK IF LATEST DESKTOP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%%
 FUNCTION DesktopInstall{
 $currentDesktopInstalled =  Test-Path 'C:\Program Files\Tableau\Tableau 2022.4\bin\tableau.exe'
 if ($currentDesktopInstalled -eq $false) {
@@ -65,7 +66,7 @@ if ($currentDesktopInstalled -eq $false) {
     else
     {#STOP HERE  UDF UPDATE GOES HERE
      write-host "Current Desktop version already installed" -ForegroundColor Cyan}
-} 
+}
 
 
 #%%%%%%%%%%%%%%%%%% CHECK IF LATEST PREP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%%
@@ -82,9 +83,9 @@ if ($currentPrepInstalled -eq $false) {
     {
      write-host "Current Prep version already installed" -ForegroundColor Cyan
      }
-} 
+}
 
-#%%%%%%%%%%%%%%%%%% LOG AND DELETE OLD Tableau SHORTCUTS %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% LOG AND DELETE OLD Tableau SHORTCUTS %%%%%%%%%%%%%%%%%%
 function findShortcuts{
     #$oldPreps = (Get-ChildItem "C:\users\$userID\appdata\" -Include "tableau*.lnk" -Recurse)
     remove-item -path "c:\temp\foundShortcuts.csv"
@@ -116,7 +117,7 @@ function uninstallOldPreps{
 
 }
 
-#Download files and verify them. 
+#Download files and verify them.
     downloadFilesHashes
     DesktopInstall
 #If not installed, start the install.
