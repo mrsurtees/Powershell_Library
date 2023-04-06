@@ -1,7 +1,7 @@
 ﻿#%%%%%%%%%%%%%%%%%%
 #      Start       #
        Clear-Host
-#
+
 
 ###Get username #####
 $liu = (Get-CimInstance -ClassName Win32_ComputerSystem).UserName
