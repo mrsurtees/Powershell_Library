@@ -8,6 +8,7 @@
 #      Checks if latest Tableau versions are installed and, if not, installs.  Old versions removed.
 #%%%%%%%%%%%%%%%%%%
 #all working....get error checking in place
+
 function WriteTo-UDF {
     Param
     (
