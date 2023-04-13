@@ -277,7 +277,7 @@ Write-host "Error uninstalling old Prep"
 
 # Uninstall Old 2019 Preps
 #Delete-OldTableauPrep -Year 2019
-
+#
 
 
 if (Test-Path "C:\temp\TableauPrep-2022-4-2.exe")
