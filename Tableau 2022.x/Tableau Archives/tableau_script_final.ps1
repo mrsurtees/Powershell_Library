@@ -1,18 +1,19 @@
 ﻿#%%%%%%%%%%%%%%%%%%
 #      Start       #
        Clear-Host
-#      PURPOSE:  reads in a csv with headings of "path, hash, name, url".  With these 
+#      PURPOSE:  reads in a csv with headings of "path, hash, name, url".  With these
 #      populated the script will install the requested software...in this case it's
 #      for Chartis Tableau
-# 
+#
 #      Checks if latest Tableau versions are installed and, if not, installs.  Old versions removed.
 #%%%%%%%%%%%%%%%%%%
+
 
 ###Get username #####
 $liu = (Get-CimInstance -ClassName Win32_ComputerSystem).UserName
 $userID = $liu.split("\")[1]
-$user = New-Object System.Security.Principal.NTAccount($liu) 
-$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier]) 
+$user = New-Object System.Security.Principal.NTAccount($liu)
+$userSID = $user.Translate([System.Security.Principal.SecurityIdentifier])
 
 #Poplate for UDF Function
 #Ensure there is a user logged in; abort execution if not
@@ -28,7 +29,7 @@ function UDF{
     Param
     (
          [Parameter(Mandatory = $false)]  [string]$var1,
-         [Parameter(Mandatory = $false)]  [string]$errorMessage, 
+         [Parameter(Mandatory = $false)]  [string]$errorMessage,
          [Parameter(Mandatory = $false)]  [string]$goodResult
     )
         if ($var1 -like "") {
@@ -38,7 +39,7 @@ function UDF{
         $errorlog = $errorMessage
         $errorLog | Out-File "c:\temp\errorlog.txt" -Append
         exit
-} 
+}
     else {
       $verified = "Custom15"
         New-ItemProperty -Path "HKLM:\SOFTWARE\CentraStage" -Name $verified -PropertyType String -Value $goodResult
@@ -51,7 +52,7 @@ UDF $var1 $errorMessage $goodResult
 #$errorMessage = ""
 #$goodResult = ""
 #$var1 = "Checking hash"
-#%%%%%%%%%%%%%%%%%% DOWNLOAD Tableau INSTALLERS PREP AND DESKTOP %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% DOWNLOAD Tableau INSTALLERS PREP AND DESKTOP %%%%%%%%%%%%%%%%%%
 
     Import-Csv C:\temp\installersArray.csv | ForEach-Object {
     "$($_.path)
@@ -73,8 +74,8 @@ UDF $var1 $errorMessage $goodResult
             exit
             }
    }
-    
-#%%%%%%%%%%%%%%%%%% CHECK IF LATEST DESKTOP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%% 
+
+#%%%%%%%%%%%%%%%%%% CHECK IF LATEST DESKTOP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%%
 $currentDesktopInstalled =  Test-Path 'C:\Program Files\Tableau\Tableau 2022.4\bin\tableau.exe'
 if ($currentDesktopInstalled -eq $false) {
         #Install Current Version
@@ -87,9 +88,9 @@ if ($currentDesktopInstalled -eq $false) {
     }
 
 #%%%%%%%%%%%%%%%%%% CHECK IF LATEST PREP INSTALLED -  INSTALL IF NOT %%%%%%%%%%%%%%%%%%
-#check for existence...if not there we install 
+#check for existence...if not there we install
 $currentDesktopInstalled =  Test-Path "C:\Program Files\Tableau\Tableau Prep Builder 2022.4\Tableau Prep Builder.exe"
-if ($currentDesktopInstalled -eq $false) 
+if ($currentDesktopInstalled -eq $false)
 {
         #Install Current Version
         write-host "Prep NOT Installed....installing," | Out-File "c:\temp\errorLog.txt" -Append
@@ -100,7 +101,7 @@ if ($currentDesktopInstalled -eq $false)
          "Prep already installed," | Out-File "c:\temp\errorLog.txt" -Append
     }
 
-#%%%%%%%%%%%%%%%%%% LOG AND DELETE OLD Tableau SHORTCUTS %%%%%%%%%%%%%%%%%% 
+#%%%%%%%%%%%%%%%%%% LOG AND DELETE OLD Tableau SHORTCUTS %%%%%%%%%%%%%%%%%%
 if (Test-Path "C:\temp\foundShortcuts.csv") {Remove-Item "c:\temp\foundShortcuts.csv"}
 write-host "Removing old Tableau Shortcuts" #Removing all but creating new version ones at end.
 New-Item -Path "c:\temp\foundShortcuts.csv"
@@ -117,20 +118,20 @@ ForEach($file in (Get-ChildItem "C:\users\Public\Desktop\" -Include "*tableau*.l
 
 #Uninstall Old 2021 Preps
 $oldPrepRemovals = Get-ChildItem -Recurse -Path "C:\programdata\Package Cache" -Include "Tableau-setup-p*2021*.exe"
-$oldPrepRemovals.FullName 
+$oldPrepRemovals.FullName
 if (Test-Path "C:\temp\foundOldPreps.csv") {Remove-Item "c:\temp\foundOldPreps.csv"}
 $oldPrepRemovals.FullName | out-file "c:\temp\foundOldPreps.csv" -Append
 start-process  $oldPrepRemovals.FullName -ArgumentList "/uninstall /quiet" -ErrorAction Continue
 
 #Uninstall Old 2020 Preps
 $oldPrepRemovals = Get-ChildItem -Recurse -Path "C:\programdata\Package Cache" -Include "Tableau-setup-p*2020*.exe"
-$oldPrepRemovals.FullName 
+$oldPrepRemovals.FullName
 $oldPrepRemovals.FullName | out-file "c:\temp\foundOldPreps.csv" -Append
 start-process  $oldPrepRemovals.FullName -ArgumentList "/uninstall /quiet" -ErrorAction Continue
 
 #Uninstall Old 2019 Preps
 $oldPrepRemovals = Get-ChildItem -Recurse -Path "C:\programdata\Package Cache" -Include "Tableau-setup-p*2019*.exe"
-$oldPrepRemovals.FullName 
+$oldPrepRemovals.FullName
 $oldPrepRemovals.FullName | out-file "c:\temp\foundOldPreps.csv" -Append
 start-process  $oldPrepRemovals.FullName -ArgumentList "/uninstall /quiet" -ErrorAction Continue
 
